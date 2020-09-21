@@ -16,53 +16,32 @@ connect.then((db) => {
 const app = express();
 app.use(morgan('dev'));
 
-
-function auth (req, res, next) {
-    
-  if (!req.session.user) {
-    var authHeader = req.headers.authorization;
-    if (!authHeader) {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');              
-        err.status = 401;
-        next(err);
-        return;
-    }
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    var user = auth[0];
-    var pass = auth[1];
-    if (user == 'admin' && pass == 'password') {
-        // res.signedCookie('user','admin',{signed: true});
-        req.session.user = 'admin';
-        next(); // authorized
-    } else {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');              
-        err.status = 401;
-        next(err);
-    }
-}
-    else {
-        if (req.session.user === 'admin') {
-            next();
-        }
-        else {
-            var err = new Error('You are not authenticated!');
-            err.status = 401;
-            next(err);
-        }
-    }
-}
-
+app.use('/loda', (req, res) => {
+    res.json("Welcome home");
+})
 
 // app.use(cookieParser('12345-67890-09876-54321'));
 app.use(session({
-    name: 'pehla session',
+    name: 'session-id',
     secret: 'super secret',
     saveUninitialized: false,
     resave: false,
     store: new FileStore()
 }))
+app.use('/users', require('./routes/userRouter'));
+
+function auth (req, res, next) {
+    console.log(req.session);
+
+    if (!req.session.user || req.session.user !== 'authenticated') {
+        const err = new Error('You are not authenticated');
+        err.status = 403;
+        return next(err);
+    }
+    else if(req.session.user === 'authenticated') {
+        next();
+    }
+}
 
 app.use(auth);
 
