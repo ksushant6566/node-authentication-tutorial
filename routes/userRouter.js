@@ -10,11 +10,27 @@ userRouter.use(bodyParser.json());
 
 userRouter.post('/signup', (req, res, next) => {
 
-    User.register(new User({username : req.body.username}), req.body.password )
+    User.register(new User({username : req.body.username}), 
+        req.body.password )
         .then(user => {
-            passport.authenticate('local')(req, res, () => {
-                res.status(200).json({success: true, status: "Registration successful!"});
-            });
+
+            if(req.body.firstname) 
+                user.firstname = req.body.firstname;
+            if(req.body.lastname)
+                user.lastname = req.body.lastname;
+                
+            user.save((err, user) => {
+                if(err) {
+                    res.status(500).json({err: err})
+                    return;
+                }
+                passport.authenticate('local')(req, res, () => {
+                    res.status(200).json({
+                        success: true, 
+                        status: "Registration successful!"
+                    });
+                });
+            })
         })
         .catch(err => {
             res.status(500).json({err: err});
