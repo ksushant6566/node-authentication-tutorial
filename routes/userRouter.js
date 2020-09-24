@@ -7,6 +7,11 @@ const authenticate = require('../authenticate');
 
 userRouter.use(bodyParser.json());
 
+userRouter.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    User.find()
+        .then(users => res.status(200).json(users))
+        .catch(err => res.status(400).json(err))
+})
 
 userRouter.post('/signup', (req, res, next) => {
 

@@ -5,6 +5,7 @@ const jwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const config = require('./config');
+const Dishes = require('./models/Dishes');
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -36,3 +37,31 @@ exports.jwtPassport = passport.use(new jwtStrategy(opts,
     }))
 
     exports.verifyUser = passport.authenticate('jwt', {session: false});
+
+    exports.verifyAdmin = (req, res, next) => {
+        if(req.user.admin === false) {
+            const err = new Error("You are not authorized to perform this operation!");
+            err.status = 403;
+            return next(err);
+        }else {
+            next();
+        }
+    }
+
+    exports.verifyAuthor = (req, res, next) => {
+        Dishes.findById(req.params.dishId)
+            .then(dish => {
+                if(dish != null && dish.comments.id(req.params.commentId) != null) {
+                    if(dish.comments.id(req.params.commentId).author.equals(req.user._id)) {
+                        next();
+                    }else {
+                        const err = new Error("You are not authorized to perform this operation!");
+                        err.status = 403;
+                        return next(err);
+                    }
+                }else {
+                    next();
+                }
+            })
+            .catch(err => next(err));
+    }
