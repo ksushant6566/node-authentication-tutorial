@@ -4,16 +4,18 @@ const userRouter = express.Router()
 const User = require('../models/User')
 const passport = require('passport')
 const authenticate = require('../authenticate');
+const cors = require('./cors');
+
 
 userRouter.use(bodyParser.json());
 
-userRouter.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     User.find()
         .then(users => res.status(200).json(users))
         .catch(err => res.status(400).json(err))
 })
 
-userRouter.post('/signup', (req, res, next) => {
+userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
 
     User.register(new User({username : req.body.username}), 
         req.body.password )
@@ -43,7 +45,7 @@ userRouter.post('/signup', (req, res, next) => {
 
 })
 
-userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
     
     const token = authenticate.getToken({_id: req.user._id})
     res.status(200).json({
