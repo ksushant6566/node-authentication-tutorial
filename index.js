@@ -32,6 +32,7 @@ app.use('/dishes', require('./routes/dishRouter'));
 app.use('/promotions', require('./routes/promoRouter'));
 app.use('/leaders', require('./routes/leaderRouter'));
 app.use('/imageUpload', require('./routes/uploadRouter'));
+app.use('/favorites', require('./routes/favoriteRouter'));
 
 const port = 3000;
 const host = "localhost";
