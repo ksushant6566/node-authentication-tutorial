@@ -18,7 +18,7 @@ favoriteRouter.route('/')
             })
             .catch(err => res.status(400).json(err));
     })
-    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         Favorite.findOne({user: req.user._id})
             .then(favorites => {
                 if(favorites == null) {
@@ -46,12 +46,12 @@ favoriteRouter.route('/')
             })
             .catch(err => res.status(400).json({line: "line47",err}));
     })
-    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         Favorite.findOneAndDelete({user: req.user._id})
             .then(favorite => res.status(200).json(favorite))
             .catch(err => res.status(400).jaon(err));
     })
-    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.json({err: " post operation not supported on /favorites/"})
     })
 
@@ -60,7 +60,7 @@ favoriteRouter.route('/:dishId')
     .get((req, res) =>{ 
         res.json({err: " get operation not supported on /favorites/dishid"}) 
     })
-    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         Favorite.findOne({user: req.user._id})
             .then(favorite => {
                 if(favorite == null) {
@@ -84,7 +84,7 @@ favoriteRouter.route('/:dishId')
                 }
             })
     })
-    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         Favorite.findOne({user: req.user._id})
             .then(fav => {
                 if(fav != null && fav.dishes.indexOf(req.params.dishId) >= 0) {
@@ -98,7 +98,7 @@ favoriteRouter.route('/:dishId')
             })
             .catch(err => res.status(400).json(err))
     })
-    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
         res.json({err: " post operation not supported on /favorites/dishId"})
     })
 
